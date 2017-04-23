@@ -23,21 +23,28 @@ if (!$server->validateAuthorizeRequest($request, $response)) {
     $response->send();
     die;
 }
-$request_body = file_get_contents('php://input');
-$res = json_decode($request_body, true);
-//获取用户名和密码
-$email = isset($res['params']['email']) ? $res['params']['email'] : '';
-$password = isset($res['params']['password']) ? $res['params']['password'] : '';
-//check 请求是否合法
 
+// request payload
+//$request_body = file_get_contents('php://input');
+//$res = json_decode($request_body, true);
+////获取用户名和密码
+//$email = isset($res['params']['email']) ? $res['params']['email'] : '';
+//$password = isset($res['params']['password']) ? $res['params']['password'] : '';
+
+$email = isset($_POST['email']) ? $_POST['email'] : '';
+$password = isset($_POST['password']) ? $_POST['password'] : '';
+//check 请求是否合法
 $res = $storage->checkUserCredentials($email, $password);
 if ($res) {
     //查找其user_id
     $user_id = $storage->getUser($email)['user_id'];
-    $_SESSION['userId'] = $user_id;
+    $_SESSION['user_id'] = $user_id;
+
     echo json_encode(array('code' => 0, 'message' => '成功!'));
+    die;
 } else {
     echo json_encode(array('code' => 1, 'message' => '失败!'));
+    die;
 }
 // validate the authorize request
 
@@ -45,29 +52,6 @@ if ($res) {
 //如果没有登录状态的话,让其登录
 
 
-die;
-
-
-// display an authorization form
-if (empty($_POST)) {
-    exit('
-<form method="post">
-  <label>是否认证testclient</label><br />
-  <input type="submit" name="authorized" value="yes">
-  <input type="submit" name="authorized" value="no">
-</form>');
-}
-$user_id = 1;
-//curl -u testclient:testpass http://127.0.0.1:8881/token.php -d 'grant_type=authorization_code&code=2ddb4a94b24ac2fd8a368b6707af087a88a7f576'
-// print the authorization code if the user has authorized your client
-$is_authorized = ($_POST['authorized'] === 'yes');
-$server->handleAuthorizeRequest($request, $response, $is_authorized, $user_id);
-//if ($is_authorized) {
-//    // this is only here so that you get to see your code in the cURL request. Otherwise, we'd redirect back to the client
-//    $code = substr($response->getHttpHeader('Location'), strpos($response->getHttpHeader('Location'), 'code=')+5, 40);
-//    exit("SUCCESS! Authorization Code: $code");
-//}
-$response->send();
 
 
 

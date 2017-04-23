@@ -9,18 +9,12 @@
 
 require_once __DIR__.'/server.php';
 
-
-
-
-//echo file_put_contents("test.txt",json_encode($_POST));
-//var_dump($_POST);die;
 if(!$server->verifyResourceRequest(OAuth2\Request::createFromGlobals())){
     $server->getResponse()->send();
     die;
 }
+$res = $server->getAccessTokenData(OAuth2\Request::createFromGlobals());
 
-
-$token = $server->getAccessTokenData(OAuth2\Request::createFromGlobals());
-echo file_put_contents("test.txt","Hello World. Testing!");
-print_r($token);die;
+echo json_encode($res);
+//此处应该定义返回
 //echo json_encode(array('success' => true, 'message' => 'You accessed my APIs!'));
